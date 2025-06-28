@@ -1,0 +1,41 @@
+
+FROM php:5.6-fpm
+
+
+RUN sed -i \
+      -e 's|http://deb.debian.org/debian|http://archive.debian.org/debian|g' \
+      -e '/security.debian.org/d' \
+      -e '/-updates/ s/^/#/' \
+      /etc/apt/sources.list \
+ && echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99no-check-valid-until \
+ && echo 'APT::Get::AllowUnauthenticated "true";' > /etc/apt/apt.conf.d/99allow-unauthenticated \
+ && apt-get update \
+ && apt-get install -y --no-install-recommends \
+      git \
+      unzip \
+      curl \
+      libzip-dev \
+        libxml2-dev \
+      default-mysql-client \
+ && rm -rf /var/lib/apt/lists/*
+
+
+RUN docker-php-ext-install pdo_mysql
+
+RUN docker-php-ext-install zip xml
+
+#Composer 1.x
+RUN curl -sS https://getcomposer.org/installer \
+    | php -- --version=1.10.26 \
+ && mv composer.phar /usr/local/bin/composer
+
+WORKDIR /var/www/html
+
+
+COPY composer.json ./
+COPY src ./src
+COPY ./php.ini /usr/local/etc/php/
+
+RUN composer install --no-dev --optimize-autoloader
+
+COPY public ./public

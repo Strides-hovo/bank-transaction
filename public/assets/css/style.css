@@ -1,0 +1,170 @@
+body{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    background-color: #eee;
+}
+
+a{
+    text-decoration: none;
+}
+button{
+    cursor: pointer;
+    border: none;
+    background: none;
+}
+ul,li{
+    list-style: none;
+}
+
+input{
+    outline: none;
+    border: 1px solid #ccc;
+    background: none;
+    padding: 5px 10px;
+}
+
+.container{
+    width: 100%;
+    margin: 0 auto;
+}
+header{
+    font-size: 30px;
+    text-align: center;
+    margin-bottom: 30px;
+}
+main{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+}
+
+.col-3{
+    width: calc(100% / 12 * 3);
+}
+.col-9 {
+    width: calc(100% / 12 * 9);
+}
+
+.col-7{
+    width: calc(100% / 12 * 7);
+}
+.col-5 {
+    width: calc(100% / 12 * 5);
+}
+
+#rate_wrapper{
+    width: calc(100% / 12 * 5);
+}
+
+.block-one {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    gap: 16px;
+    width: 100%;
+    margin: 0 20px;
+
+}
+
+
+.upload-block, #rate {
+
+    border: 1px solid #ccc;
+    background-color: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: #1d1d1d 0 0 1px 0;
+}
+.upload-block {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.upload-block .browse-btn {
+    background-color: #28a745;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    user-select: none;
+}
+.upload-block .browse-btn:hover {
+    background-color: #218838;
+}
+
+.upload-block .file-name {
+    font-size: 14px;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+}
+
+.upload-block .drop-zone {
+    position: relative;
+    flex: 1;
+    height: 80px;
+    border: 2px dashed #ccc;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-size: 14px;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+
+.upload-block .drop-zone.dragover {
+    background-color: #f8f9fa;
+    border-color: #28a745;
+    color: #28a745;
+}
+.upload-block .drop-zone img {
+    margin-right: 8px;
+    width: 24px;
+    height: 24px;
+}
+
+
+.upload-block input[type="file"] {
+    display: none;
+}
+
+
+
+
+
+.block-one .dataTables_wrapper {
+    width: 100%;
+}
+
+div.dt-container div.dt-layout-row{
+    margin: 0;
+}
+
+.bank-accounts{
+    width: 100%;
+    margin: 30px 20px;
+    border: 1px solid #ccc;
+    background-color: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: #1d1d1d 0 0 1px 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
