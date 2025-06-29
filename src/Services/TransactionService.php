@@ -35,17 +35,51 @@ class TransactionService
     }
 
 
-
-    public function getAllTransactions()
+    public function getRates()
     {
-        $currencies = $this->repository->getAll();
-        return array_map(function ($currency){
+        $currencies = $this->repository->getCurrencies();
+        return array_map(function ($currency) {
             return [
                 'Currency' => $currency,
                 'Fx Rate' => FetchService::fetchRateToCHF($currency)
             ];
 
         }, $currencies);
+    }
+
+
+    public function getTransactions()
+    {
+        return $this->repository->getAll();
+    }
+
+
+    /**
+     * @throws Exception
+     */
+    public function updateTransaction(array $data)
+    {
+        $ids = array_keys($data['data']);
+        $id = $ids[0];
+        $fields = $data['data'][$id];
+        $fields['id'] = $id;
+        $response = [
+            'status' => 'success',
+            'message' => 'Transaction updated successfully',
+        ];
+        $errorResponse = [
+            'status' => 'error',
+            'message' => 'date is not valid',
+        ];
+        if (isset($fields['date']) && !validateDate($fields['date'], 'Y-m-d')) {
+            http_response_code(419);
+            return $errorResponse;
+        }
+        if ($this->repository->updateTransaction($fields)) {
+            return $response;
+        }
+        http_response_code(419);
+        return $errorResponse;
     }
 
 
@@ -74,4 +108,6 @@ class TransactionService
 
         return $rows;
     }
+
+
 }

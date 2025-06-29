@@ -53,6 +53,9 @@ main{
 .col-5 {
     width: calc(100% / 12 * 5);
 }
+.col-12{
+    width: 100%;
+}
 
 #rate_wrapper{
     width: calc(100% / 12 * 5);
@@ -161,8 +164,14 @@ div.dt-container div.dt-layout-row{
     cursor: pointer;
 }
 
-
-
+.transactions{
+    margin: 0 20px;
+    border: 1px solid #ccc;
+    background-color: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: #1d1d1d 0 0 1px 0;
+}
 
 
 

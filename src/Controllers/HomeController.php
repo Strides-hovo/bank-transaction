@@ -53,9 +53,9 @@ class HomeController
      * @return false|string
      * @method #GET url /transactions
      */
-    public function getTransactions()
+    public function getRates()
     {
-        $transactions = $this->transactionService->getAllTransactions();
+        $transactions = $this->transactionService->getRates();
         return json_encode($transactions, JSON_PRETTY_PRINT);
     }
 
@@ -72,6 +72,22 @@ class HomeController
 
         return json_encode($response, JSON_PRETTY_PRINT);
     }
+
+
+    public function getTransactions()
+    {
+        return json_encode($this->transactionService->getTransactions(), JSON_PRETTY_PRINT);
+    }
+
+
+    /**
+     * @throws Exception
+     */
+    public function updateTransaction()
+    {
+        return json_encode($this->transactionService->updateTransaction($this->params), JSON_PRETTY_PRINT);
+    }
+
 
     private function getParams()
     {
@@ -91,5 +107,4 @@ class HomeController
         parse_str($input, $parsed);
         return $parsed;
     }
-
 }

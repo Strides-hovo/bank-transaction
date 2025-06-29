@@ -2,7 +2,9 @@
 return array(
     '/'       => array('GET'  => 'HomeController@index'),
     '/import' => array('POST' => 'HomeController@importFile'),
-    '/transactions' => array('GET' => 'HomeController@getTransactions'),
+    '/rates' => array('GET' => 'HomeController@getRates'),
     '/accounts' => array('GET' => 'HomeController@getAccountsData'),
-    '/update-balance' => array('POST' => 'HomeController@updateStartBalance'),
+    '/balance/update' => array('POST' => 'HomeController@updateStartBalance'),
+    '/transactions' => array('GET' => 'HomeController@getTransactions'),
+    '/transactions/update' => array('POST' => 'HomeController@updateTransaction'),
 );

@@ -69,7 +69,7 @@ function initExcelImporter() {
 
 
 function loadCurrencyExchangeTable() {
-    const importUrl = '/transactions'
+    const importUrl = '/rates'
     const data = {
         ajax: {
             url: importUrl,
@@ -137,7 +137,7 @@ function bankAccountsTable(){
             const rowData = table.row(cell.index().row).data();
 
             $.ajax({
-                url: '/update-balance',
+                url: '/balance/update',
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({
@@ -164,10 +164,95 @@ function bankAccountsTable(){
 
 }
 
+
+
+function transactions() {
+
+    const columns = [
+        { data: "account" },
+        { data: "number" },
+        { data: "amount" },
+        { data: "currency"},
+        { data: "date"},
+    ]
+
+    const fields = [
+        { label: "Transaction No", name: "number" },
+        { label: "Amount", name: "amount" },
+        { label: "Date", name: "date", type: "datetime", format: 'YYYY-MM-DD'},
+        {label: '', name: "id"}
+    ]
+
+    const editor = new DataTable.Editor({
+        ajax: {
+            url: '/transactions/update',
+            type: 'POST'
+        },
+        table: '#transactions',
+        fields,
+        idSrc:  'id',
+    });
+
+    const table = $('#transactions').DataTable({
+        ajax: {
+            url: '/transactions',
+            dataSrc: ''
+        },
+        columns ,
+        dom: 'lfrtip',
+        buttons: [
+            'excel', 'pdf'
+        ],
+        searching: false,
+        pageLength: 10,
+        lengthMenu: [ [10, 25, 50, -1], [10, 25, 50, 'All'] ],
+
+    });
+
+    $('#transactions').on('click', 'tbody td', function (e) {
+
+        const index = $(this).index()
+        const keys = columns.flatMap(v => v.data)
+        const key = keys[index]
+        const editing = fields.flatMap(v => v.name)
+        if (editing.includes(key)){
+            editor.inline(this, key);
+
+        }
+    });
+
+    editor.on('postSubmit', function (a,b) {
+        if (b.status === 'success'){
+            table.ajax.reload(null, false);
+        }
+        else{
+            editor.error(b.message)
+        }
+    });
+
+
+    $('#transactions').on('click', '.btn-delete', function () {
+    const row = table.row($(this).parents('tr'));
+    const data = row.data();
+    if (confirm(`Удалить транзакцию ${data.number}?`)) {
+        $.ajax({
+            url: '/transactions/delete',
+            method: 'POST',
+            data: { id: data.id },
+            success: () => row.remove().draw(false)
+        });
+    }
+});
+}
+
+
+
+
+
 $(initExcelImporter);
 $(loadCurrencyExchangeTable)
 $(bankAccountsTable)
-
+$(transactions)
 
 
 

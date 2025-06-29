@@ -56,13 +56,48 @@ class TransactionRepository extends Repository
     }
 
 
-    public function getAll()
+    public function getCurrencies()
     {
         return $this->db
             ->query('SELECT DISTINCT currency FROM transactions where currency != "CHF"')
             ->fetchAll(PDO::FETCH_COLUMN);
     }
 
+
+    public function getAll()
+    {
+        return $this->db
+            ->query('SELECT * FROM transactions')
+            ->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
+    public function updateTransaction(array $data)
+    {
+
+        $id = $data['id'];
+        unset($data['id']);
+        $values = array_values($data);
+
+        $prepare = "UPDATE transactions SET ";
+        foreach ($data as $k => $v) {
+            $prepare .= "`{$k}` = ?, ";
+        }
+        $prepare = rtrim($prepare, ', ') . " WHERE id = ?";
+        $values[] = $id;
+
+        try {
+            $this->db->beginTransaction();
+            $stmt = $this->db->prepare($prepare);
+            $stmt->execute($values);
+            $this->db->commit();
+            return $stmt->rowCount();
+        }
+        catch (\PDOException $e){
+            $this->db->rollBack();
+            return 0;
+        }
+    }
 
     /**
      * @throws Exception
