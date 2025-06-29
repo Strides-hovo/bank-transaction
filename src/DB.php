@@ -36,9 +36,12 @@ class DB extends PDO
     public function createTableAccounts()
     {
         $sql = "CREATE TABLE IF NOT EXISTS accounts (
-            account VARCHAR(255) PRIMARY KEY,
-            start_balance DECIMAL(12,2) NOT NULL DEFAULT 0
-        );";
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    account VARCHAR(255) NOT NULL,
+                    currency ENUM('EUR','CHF','USD') NOT NULL,
+                    start_balance DECIMAL(12,2) NOT NULL DEFAULT 0,
+                    UNIQUE KEY uniq_account_currency (account, currency)
+                );";
         $this->exec($sql);
         return $this;
     }

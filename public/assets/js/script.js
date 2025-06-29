@@ -55,7 +55,9 @@ function initExcelImporter() {
         }).done(function (resp) {
             if (resp.status === 'success') {
                 // redraw currency exchange table
-                loadCurrencyExchangeTable();
+                loadCurrencyExchangeTable()
+                // redraw accounts table
+                bankAccountsTable()
             } else {
                 alert('Server error: ' + (resp.message || ''));
             }
@@ -93,22 +95,9 @@ function loadCurrencyExchangeTable() {
 
 function bankAccountsTable(){
 
-    const accountsData = [
-        {
-            bank: 'Revolut',
-            currency: 'EUR',
-            starting_balance: 0,
-            end_balance_chf: 0
-        },
-        {
-            bank: 'SwissBank',
-            currency: 'CHF',
-            starting_balance: 0,
-            end_balance_chf: 0
-        }
-    ]
     const importUrl = '/accounts'
-    const table = $('#accounts').DataTable({
+    let table
+    const data = {
         ajax: {
             url: importUrl,
             dataSrc: '',
@@ -116,30 +105,63 @@ function bankAccountsTable(){
         columns: [
             { data: 'bank', title: 'Banks' },
             { data: 'currency', title: 'Currency' },
-            { data: 'starting_balance', title: 'Starting Balance' },
-            {
-                data: 'starting_balance',
-                title: 'Edit Balance',
-                render: function (data, type, row, meta) {
-
-                    return `<input type="number" class="edit-balance" data-index="${meta.row}" value="${data}">`;
-                }
-            },
+            { data: 'start_balance', title: 'Starting Balance' },
+            { data: 'end_balance', title: 'End Balance'},
             { data: 'end_balance_chf', title: 'End Balance (CHF)' }
         ],
         searching: false,
         paging: false,
         info:     false,
 
-    });
-    $('#accounts tbody').on('input', '.edit-balance', function () {
-        const index = $(this).data('index');
-        accountsData[index].starting_balance = parseFloat($(this).val()) || 0;
+    };
+    if ($.fn.DataTable.isDataTable('#accounts')) {
+        table = $('#accounts').DataTable().ajax.url(importUrl).load()
+    }
+    else{
+        table = $('#accounts').DataTable(data)
+    }
 
-        // Здесь можно пересчитать end_balance_chf, если известен курс
 
-        table.row(index).data(accountsData[index]).invalidate();
+    table.on('click', 'tbody td', function () {
+
+        const cell = table.cell(this);
+        const cellIndex = Number(cell.index().column)
+        if (cellIndex !== 0 && cellIndex !== 2) return
+
+        const originalValue = cell.data();
+        const placeholder = cellIndex === 0 ? 'Enter new account name:' : 'Enter new starting balance:'
+        const newValue = prompt(placeholder, originalValue);
+        if (newValue === null) return;
+
+        if (newValue !== originalValue){
+            const rowData = table.row(cell.index().row).data();
+
+            $.ajax({
+                url: '/update-balance',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    id: rowData.id,
+                    account: cellIndex === 0 ? newValue : rowData.bank,
+                    start_balance: cellIndex === 2 ? newValue : rowData.start_balance
+                }),
+                success: function (d,g) {
+                    console.log(d,g)
+                    cell.data(newValue).draw(false);
+                    table.ajax.reload(null, false); // reload end_balance and CHF
+                },
+                error: function (err, msg, x) {
+                    console.log(err, msg, x)
+                    alert('Failed to update balance');
+                },
+                always: (a,b) => {
+                    console.log(a,b)
+                }
+            });
+        }
+
     });
+
 }
 
 $(initExcelImporter);

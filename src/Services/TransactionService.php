@@ -22,21 +22,30 @@ class TransactionService
         $this->repository = new TransactionRepository();
     }
 
+
     /**
+     * @throws PHPExcel_Reader_Exception
+     * @throws PHPExcel_Exception
      * @throws Exception
      */
-    public function importXLSXFile($file)
+    public function saveTransactions($filePath)
     {
-        $fileName = $file['name'];
-        $uploadDir = __DIR__ . '/../../public/uploads/';
-        $uploadFile = $uploadDir . basename($fileName);
-        $fileTmpName = $file['tmp_name'];
+        $data = $this->parseFileDataToArray($filePath);
+        return $this->repository->saveTransactions($data);
+    }
 
-        if (move_uploaded_file($fileTmpName, $uploadFile)) {
-            return $uploadFile;
-        }
 
-        throw new Exception('File upload failed. Please try again.');
+
+    public function getAllTransactions()
+    {
+        $currencies = $this->repository->getAll();
+        return array_map(function ($currency){
+            return [
+                'Currency' => $currency,
+                'Fx Rate' => FetchService::fetchRateToCHF($currency)
+            ];
+
+        }, $currencies);
     }
 
 
@@ -45,7 +54,7 @@ class TransactionService
      * @throws PHPExcel_Exception
      * @throws Exception
      */
-    public function parseFileData($filePath)
+    private function parseFileDataToArray($filePath)
     {
 
         if (!file_exists($filePath)) {
@@ -64,31 +73,5 @@ class TransactionService
         }
 
         return $rows;
-    }
-
-
-    public function getAllTransactions()
-    {
-        $currencies = $this->repository->getAll();
-        $result = array_map(function ($currency){
-            return [
-                'Currency' => $currency,
-                'Fx Rate' => $this->fetchRateToCHF($currency)
-            ];
-
-        }, $currencies);
-
-        return $result;
-    }
-
-
-    private function fetchRateToCHF( $currency)
-    {
-        $apiKey = '9c939dba92545858a6cf81d5';
-
-        $url = "https://v6.exchangerate-api.com/v6/{$apiKey}/pair/{$currency}/CHF";
-        $resp = json_decode(file_get_contents($url), true);
-
-        return $resp['conversion_rate'];
     }
 }

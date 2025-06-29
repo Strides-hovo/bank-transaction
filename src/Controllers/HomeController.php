@@ -2,31 +2,24 @@
 
 namespace App\Controllers;
 
-use App\Repository\TransactionRepository;
+use App\Services\AccountService;
+use App\Services\ImportService;
 use App\Services\TransactionService;
 use Exception;
-
 
 
 class HomeController
 {
 
-
-    /**
-     * @var TransactionService
-     */
-    private $service;
-
-    private $repository;
-    /**
-     * @var array
-     */
     private $params;
+    private $transactionService;
+    private $accountService;
+
 
     public function __construct()
     {
-        $this->service = new TransactionService();
-        $this->repository = new TransactionRepository();
+        $this->transactionService = new TransactionService();
+        $this->accountService = new AccountService();
         $this->params = $this->getParams();
     }
 
@@ -37,9 +30,8 @@ class HomeController
     {
         return render('home', [
             'title' => 'Home Page',
-            'header' => 'Welcome to the Home Page ' ,
-
-            'footer' => 'Footer content goes here',
+            'header' => 'Welcome to the Home Page ',
+            'footer' => 'Footer content',
         ]);
     }
 
@@ -49,10 +41,9 @@ class HomeController
      */
     public function importFile()
     {
-        $file = $this->params['excel'] ? : [];
-        $filePath =  $this->service->importXLSXFile($file);
-        $data = $this->service->parseFileData($filePath);
-        $status = $this->repository->saveTransactions($data);
+        $file = $this->params['excel'] ?: [];
+        $filePath = ImportService::importXLSXFile($file);
+        $status = $this->transactionService->saveTransactions($filePath);
 
         return json_encode($status, JSON_PRETTY_PRINT);
     }
@@ -64,40 +55,38 @@ class HomeController
      */
     public function getTransactions()
     {
-        $transactions = $this->service->getAllTransactions();
+        $transactions = $this->transactionService->getAllTransactions();
         return json_encode($transactions, JSON_PRETTY_PRINT);
     }
 
 
     public function getAccountsData()
     {
-
-
-        $result =  [
-            ['bank' => 'Revolut', 'currency' => 'EUR', 'starting_balance' => 0, 'end_balance_chf' => 0],
-            ['bank' => 'Revolut2', 'currency' => 'USD', 'starting_balance' => 0, 'end_balance_chf' => 0],
-            ['bank' => 'Revolut3', 'currency' => 'EUR', 'starting_balance' => 0, 'end_balance_chf' => 0],
-        ];
-
-
-        return json_encode($result, JSON_PRETTY_PRINT);
+        return json_encode($this->accountService->getAccountsList(), JSON_PRETTY_PRINT);
     }
 
+
+    public function updateStartBalance()
+    {
+        $response = $this->accountService->update($this->params);
+
+        return json_encode($response, JSON_PRETTY_PRINT);
+    }
 
     private function getParams()
     {
         $method = $_SERVER['REQUEST_METHOD'];
+        $contentType = $_SERVER['CONTENT_TYPE'] ?: '';
+        $input = file_get_contents('php://input'); // for PUT, PATCH, DELETE
 
+        if (stripos($contentType, 'application/json') !== false) {
+            return json_decode($input, true) ?: [];
+        }
         if ($method === 'POST') {
             return !empty($_FILES) ? array_merge($_POST, $_FILES) : $_POST;
-        }
-
-        elseif ($method === 'GET') {
+        } elseif ($method === 'GET') {
             return $_GET;
         }
-
-        // for PUT, PATCH, DELETE
-        $input = file_get_contents('php://input');
 
         parse_str($input, $parsed);
         return $parsed;

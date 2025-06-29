@@ -4,4 +4,5 @@ return array(
     '/import' => array('POST' => 'HomeController@importFile'),
     '/transactions' => array('GET' => 'HomeController@getTransactions'),
     '/accounts' => array('GET' => 'HomeController@getAccountsData'),
+    '/update-balance' => array('POST' => 'HomeController@updateStartBalance'),
 );

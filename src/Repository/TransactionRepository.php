@@ -3,35 +3,18 @@
 namespace App\Repository;
 
 
-use App\App;
 use App\DB;
 use Exception;
 use PDO;
 
-class TransactionRepository
+class TransactionRepository extends Repository
 {
 
     private $chunk = 50;
 
 
     /**
-     * @var DB
-     */
-    private $db;
-
-
-    /**
      * @throws Exception
-     */
-    public function __construct()
-    {
-        $this->db = App::getContainer('db');
-    }
-
-
-    /**
-     * @throws Exception
-     * @example [account => Revolut, number => 98989, currency => EUR, amount => 5.7, date => 2022-04-03 00:00:00]
      */
     public function saveTransactions(array $rows)
     {
@@ -49,6 +32,8 @@ class TransactionRepository
         try {
             $this->db->beginTransaction();
             $this->db->exec('TRUNCATE TABLE `transactions`');
+            $accounts = (new AccountRepository())->saveAccounts($rows, $headers);
+
             foreach ($chunk as $item) {
                 list($sql, $values) = $this->prepareTransactionSql($item, $headers);
 
@@ -57,8 +42,7 @@ class TransactionRepository
                 $rowCount += $stmt->rowCount();
             }
             $this->db->commit();
-        }
-        catch (\PDOException $e) {
+        } catch (\PDOException $e) {
             $this->db->rollBack();
             throw $e;
         }
@@ -66,7 +50,8 @@ class TransactionRepository
         return [
             'status' => 'success',
             'message' => 'File imported successfully',
-            'rowCount' => $rowCount
+            'rowCount' => $rowCount,
+            'accounts' => $accounts
         ];
     }
 
@@ -79,31 +64,12 @@ class TransactionRepository
     }
 
 
-
-
-    public function getLstAccounts()
-    {
-
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     /**
      * @throws Exception
      */
     private function prepareTransactionSql(array $rows, array $headers)
     {
-        $columns = $this->setColumns($headers);
+        $columns = $this->setTransactionColumns($headers);
         $values = [];
         $placeholders = [];
         $dateIndex = array_search('`date`', $columns, true);
@@ -122,31 +88,5 @@ class TransactionRepository
         $sql = "INSERT INTO `transactions` (" . implode(',', $columns) . ") VALUES " . implode(',', $placeholders);
         return [$sql, $values];
 
-    }
-
-
-    /**
-     * @throws Exception
-     */
-    private function setColumns(array $headers)
-    {
-        $columns = [];
-        $map = [
-            'Account' => '`account`',
-            'Transaction No' => '`number`',
-            'Amount' => '`amount`',
-            'Currency' => '`currency`',
-            'Date' => '`date`',
-        ];
-
-        if (count($headers) !== count($map)) {
-            throw new Exception('Not valid headers');
-        }
-        foreach ($headers as $idx => $h) {
-            if (isset($map[$h])) {
-                $columns[$idx] = $map[$h];
-            }
-        }
-        return $columns;
     }
 }
