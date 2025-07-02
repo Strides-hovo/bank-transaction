@@ -1,6 +1,10 @@
 Тестовое задание на позицию:
 PHP5 & Full Stack Developer
 
+#clean php
+#pdo
+#custom cache
+
 Реализовать одностраничное приложение используя PHP5, MySQL, HTML5/CSS3, JQ,
 Highcharts JS, DataTables Editor для просмотра и редактирования таблицы транзакций. Примерный
 внешний вид приложения по ссылке: https://drive.google.com/file/d/1_uDBu0vQXRB774tPatu3NaTrQjd0yVBQ
