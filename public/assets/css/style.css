@@ -173,7 +173,9 @@ div.dt-container div.dt-layout-row{
     box-shadow: #1d1d1d 0 0 1px 0;
 }
 
-
+.chart figure{
+    margin: 20px;
+}
 
 
 

@@ -89,6 +89,11 @@ class HomeController
     }
 
 
+    public function getChart()
+    {
+        return json_encode($this->transactionService->getChart(), JSON_PRETTY_PRINT);
+    }
+
     private function getParams()
     {
         $method = $_SERVER['REQUEST_METHOD'];

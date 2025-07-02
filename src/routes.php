@@ -7,4 +7,5 @@ return array(
     '/balance/update' => array('POST' => 'HomeController@updateStartBalance'),
     '/transactions' => array('GET' => 'HomeController@getTransactions'),
     '/transactions/update' => array('POST' => 'HomeController@updateTransaction'),
+    '/transactions/chart' => array('GET' => 'HomeController@getChart'),
 );

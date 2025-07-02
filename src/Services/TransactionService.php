@@ -109,5 +109,131 @@ class TransactionService
         return $rows;
     }
 
+    public function getChart()
+    {
+        $response = $this->repository->selectChartData();
+        return $this->groupedChartData($response);
+    }
 
+
+    private function groupedChartData(array $data)
+    {
+        $categories     = $this->collectCategories();
+        $monthlySums    = $this->collectSumByMonth($data);
+        $balances       = $this->calculateBalance($monthlySums);
+        $total          = $this->collectTotal($monthlySums);
+        $series         = $this->collectSeries($balances, $total);
+
+        return [
+            'categories' => $categories,
+            'series' => $series
+        ];
+    }
+
+
+    /**
+     * @param array $balances
+     * @param $total
+     * @return array @example [0][name => Stripe,data => [65,989]
+     */
+    private function collectSeries(array $balances, $total)
+    {
+        $series = [];
+        foreach ($balances as $account => $months) {
+            $dataPoints = [];
+            for ($i = 1; $i <= 12; $i++) {
+                $dataPoints[] = isset($months[$i]) ? $months[$i] : 0;
+            }
+
+            $series[] = array(
+                'name' => $account,
+                'data' => $dataPoints
+            );
+        }
+        $totalData = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $totalData[] = isset($total[$i]) ? $total[$i] : 0;
+        }
+
+        $series[] = array(
+            'name' => 'Total',
+            'data' => $totalData
+        );
+        return $series;
+    }
+
+    private function collectCategories()
+    {
+        $categories = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $timestamp = strtotime("2024-$i-01");
+            $categories[] = date('M', $timestamp);
+        }
+        return $categories;
+    }
+
+
+    /**
+     * @param array $data
+     * @return array
+     * @example [Stripe][2] = 76
+     */
+    private function collectSumByMonth(array $data)
+    {
+        $monthlySums = [];
+        foreach ($data as $item) {
+            $account = $item['account'];
+            $month = (int)date('n', strtotime($item['date']));
+
+            if (!isset($monthlySums[$account][$month])) {
+                $monthlySums[$account][$month] = 0;
+            }
+
+            $monthlySums[$account][$month] += $item['amount'];
+        }
+        return $monthlySums;
+    }
+
+
+    /**
+     * @param array $monthlySums
+     * @return array
+     * @example [Stripe][2] = 78
+     */
+    private function calculateBalance(array $monthlySums)
+    {
+        $balances = [];
+        foreach ($monthlySums as $account => $months) {
+            $balance = 0;
+            for ($i = 1; $i <= 12; $i++) {
+                $amount = isset($months[$i]) ? $months[$i] : 0;
+                $balance += $amount;
+                $balances[$account][$i] = $balance;
+            }
+        }
+        return $balances;
+    }
+
+
+    /**
+     * @param array $monthlySums
+     * @return array
+     * @example [2] = 780
+     */
+    private function collectTotal(array $monthlySums)
+    {
+        $total = [];
+        foreach ($monthlySums as $months) {
+            $balance = 0;
+            for ($i = 1; $i <= 12; $i++) {
+                $amount = isset($months[$i]) ? $months[$i] : 0;
+                $balance += $amount;
+                if (!isset($total[$i])) {
+                    $total[$i] = 0;
+                }
+                $total[$i] += $balance;
+            }
+        }
+        return $total;
+    }
 }

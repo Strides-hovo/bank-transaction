@@ -246,9 +246,49 @@ function transactions() {
 }
 
 
+async function chart(){
+
+    const serverData = {
+        categories: [],
+        series: []
+    }
+
+     await fetch('/transactions/chart')
+         .then(r => r.json())
+         .then(response => {
+             serverData.series = response.series
+             serverData.categories = response.categories
+         })
+
+    // Data retrieved https://en.wikipedia.org/wiki/List_of_cities_by_average_temperature
+    Highcharts.chart('container', {
+        chart: {
+            type: 'line'
+        },
+        title: null,
+
+        xAxis: {
+            categories: serverData.categories
+        },
+        yAxis: {
+            title: null
+        },
+        plotOptions: {
+            line: {
+                dataLabels: {
+                    enabled: true
+                },
+                enableMouseTracking: false
+            }
+        },
+        series: serverData.series
+    });
+
+}
 
 
 
+$(chart)
 $(initExcelImporter);
 $(loadCurrencyExchangeTable)
 $(bankAccountsTable)

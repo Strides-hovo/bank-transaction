@@ -55,6 +55,12 @@
             </table>
         </div>
 
+        <div class="chart col-12">
+            <figure class="highcharts-figure">
+                <div id="container"></div>
+            </figure>
+        </div>
+
 
         <div class="transactions col-12">
             <p>Transactions</p>
@@ -78,9 +84,14 @@
 </div>
 
 
-<script src="https://code.highcharts.com/highcharts.js"></script>
+
 <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+<script src="https://code.highcharts.com/themes/adaptive.js"></script>
 <!-- DataTables 1.13.6 -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>

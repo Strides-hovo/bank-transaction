@@ -124,4 +124,11 @@ class TransactionRepository extends Repository
         return [$sql, $values];
 
     }
+
+    public function selectChartData()
+    {
+        return $this->db
+            ->query('SELECT `account`, SUM(`amount`) as amount, date FROM transactions GROUP BY `account`,`date` ORDER BY date')
+            ->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

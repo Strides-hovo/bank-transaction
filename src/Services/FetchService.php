@@ -6,11 +6,20 @@ class FetchService
 {
     public static function fetchRateToCHF($currency)
     {
-        $apiKey = '9c939dba92545858a6cf81d5';
-
+        $apiKey = '4564571e95c08de7c393ee32';
         $url = "https://v6.exchangerate-api.com/v6/{$apiKey}/pair/{$currency}/CHF";
-        $resp = json_decode(file_get_contents($url), true);
-
-        return $resp['conversion_rate'];
+        try {
+            if ( Cache::has('CHF') ){
+                return Cache::get('CHF');
+            }
+            else{
+                $course = json_decode(@file_get_contents($url), true);
+                Cache::set('CHF', $course['conversion_rate']);
+                return $course['conversion_rate'];
+            }
+        }
+        catch (\Exception $ex){
+            return 0;
+        }
     }
 }
