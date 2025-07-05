@@ -24,12 +24,21 @@ class App
     public function run()
     {
         if (empty(self::$container)) {
-            self::$container['db'] = self::connect();
-            self::$container['db']
+            self::$container['DB'] = self::connect();
+            //self::$container['console'] = new Console($_SERVER['argv']);
+            /*self::$container['db']
                 ->createTableTransactions()
-                ->createTableAccounts();
+                ->createTableAccounts();*/
         }
 
+        if (!empty($_REQUEST)){
+            $this->setRoutes();
+        }
+    }
+
+
+    private function setRoutes()
+    {
         $routes = require_once __DIR__ . '/routes.php';
 
         $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -38,9 +47,7 @@ class App
         if (isset($routes[$requestUri][$method])) {
             $action = $routes[$requestUri][$method];
             list($controllerName, $actionName) = explode('@', $action, 2);
-            $controllerClass = 'App\\Controllers\\' . $controllerName;
-
-
+            $controllerClass = '\\App\\Controllers\\' . $controllerName;
             if (class_exists($controllerClass)) {
                 $controller = new $controllerClass();
                 if (method_exists($controller, $actionName)) {
@@ -55,16 +62,21 @@ class App
     }
 
 
+    public  function addContainer($key, $instance, $params = [])
+    {
+        self::$container[$key] = new $instance(...$params);
+    }
+
     /**
      * @throws Exception
      */
-    public static function getContainer($key)
+    public  function getContainer($key)
     {
         if (isset(self::$container[$key])) {
             return self::$container[$key];
         }
 
-        throw new Exception("Container key '{$key}' not found.");
+
     }
 
 

@@ -1,0 +1,29 @@
+#!/usr/bin/env php
+
+<?php
+
+use Dotenv\Dotenv;
+
+require_once __DIR__ . '/vendor/autoload.php';
+
+$env = new Dotenv(__DIR__ . '/src');
+$env->load();
+
+try {
+    $app = app();
+
+    $app->setContainer(\App\DB::class);
+    $app->setContainer(\App\Console::class, $_SERVER['argv']);
+    $console = $app->getContainer()[\App\Console::class];
+    $console->terminate();
+
+}
+catch (ReflectionException $e) {
+    file_put_contents(__DIR__ . '/logs/app.log', $e);
+} catch (Exception $e) {
+    file_put_contents(__DIR__ . '/logs/app.log', $e);
+}
+
+exit();
+
+?>

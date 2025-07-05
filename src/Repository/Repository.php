@@ -19,7 +19,7 @@ abstract class Repository
      */
     public function __construct()
     {
-        $this->db = App::getContainer('db');
+        $this->db = \app(DB::class)->getContainer()[DB::class];
     }
 
     /**

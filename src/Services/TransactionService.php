@@ -145,20 +145,20 @@ class TransactionService
                 $dataPoints[] = isset($months[$i]) ? $months[$i] : 0;
             }
 
-            $series[] = array(
+            $series[] = [
                 'name' => $account,
                 'data' => $dataPoints
-            );
+            ];
         }
         $totalData = [];
         for ($i = 1; $i <= 12; $i++) {
             $totalData[] = isset($total[$i]) ? $total[$i] : 0;
         }
 
-        $series[] = array(
+        $series[] = [
             'name' => 'Total',
             'data' => $totalData
-        );
+        ];
         return $series;
     }
 

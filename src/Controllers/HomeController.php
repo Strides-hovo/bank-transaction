@@ -28,6 +28,7 @@ class HomeController
      */
     public function index()
     {
+        file_put_contents(__DIR__ . '/info.json', json_encode($this->params));
         return render('home', [
             'title' => 'Home Page',
             'header' => 'Welcome to the Home Page ',
